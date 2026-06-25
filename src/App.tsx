@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { legalSections, legalUpdatedAt } from "./content/legal";
 import { brokerPlugins } from "./domain/brokers";
 import { calculateConversion } from "./domain/calculate";
 import { riskProfiles } from "./domain/profiles";
@@ -29,6 +30,7 @@ const rateOptions: Array<{ id: MarketRateKey; label: string }> = [
 
 function App() {
   const [input, setInput] = useState<CurrencyInput>(initialInput);
+  const [isTermsOpen, setIsTermsOpen] = useState(false);
   const [liveRates, setLiveRates] = useState<LiveRates | null>(null);
   const [ratesStatus, setRatesStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [ratesError, setRatesError] = useState<string | null>(null);
@@ -263,7 +265,26 @@ function App() {
             </section>
           </aside>
         </section>
+
+        <footer className="border-t border-slate-200 pb-2 pt-5 text-sm text-slate-600">
+          <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+            <p className="max-w-4xl leading-6">
+              ArbitraAR es una herramienta informativa independiente. Cotizaciones provistas por fuentes publicas
+              como DolarAPI. Prex, PPI, Portfolio Personal Inversiones, HSBC y las marcas mencionadas pertenecen a
+              sus titulares y no tienen afiliacion, patrocinio ni relacion con este sitio.
+            </p>
+            <button
+              className="h-10 shrink-0 rounded-md border border-slate-300 px-4 text-sm font-semibold text-slate-950 transition hover:border-teal-600 hover:text-teal-700"
+              type="button"
+              onClick={() => setIsTermsOpen(true)}
+            >
+              Terminos
+            </button>
+          </div>
+          <p className="mt-3 text-xs text-slate-500">© 2026 ArbitraAR. Todos los derechos reservados.</p>
+        </footer>
       </div>
+      <TermsModal open={isTermsOpen} onClose={() => setIsTermsOpen(false)} />
     </main>
   );
 }
@@ -371,6 +392,53 @@ function Detail({ label, value, tone }: { label: string; value: string; tone?: "
     <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-3 last:border-b-0 last:pb-0">
       <dt className="text-slate-500">{label}</dt>
       <dd className={`text-right font-semibold ${toneClass}`}>{value}</dd>
+    </div>
+  );
+}
+
+function TermsModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  if (!open) {
+    return null;
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end bg-slate-950/45 p-0 sm:items-center sm:p-4" role="dialog" aria-modal="true">
+      <section className="max-h-[92vh] w-full overflow-hidden rounded-t-lg bg-white shadow-soft sm:mx-auto sm:max-w-4xl sm:rounded-lg">
+        <header className="flex items-start justify-between gap-4 border-b border-slate-200 px-5 py-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-teal-700">ArbitraAR</p>
+            <h2 className="mt-1 text-2xl font-semibold text-slate-950">Terminos y Condiciones</h2>
+            <p className="mt-1 text-sm text-slate-500">Ultima actualizacion: {formatDate(legalUpdatedAt)}</p>
+          </div>
+          <button
+            className="h-10 rounded-md border border-slate-300 px-4 text-sm font-semibold text-slate-950 transition hover:border-teal-600 hover:text-teal-700"
+            type="button"
+            onClick={onClose}
+          >
+            Cerrar
+          </button>
+        </header>
+
+        <div className="max-h-[72vh] overflow-y-auto px-5 py-4">
+          <p className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm leading-6 text-amber-950">
+            Este texto es una base preventiva para un proyecto informativo y no reemplaza la revision de un abogado
+            matriculado. Si el sitio escala, monetiza o incorpora usuarios registrados, conviene revisarlo formalmente.
+          </p>
+
+          <div className="mt-5 grid gap-5">
+            {legalSections.map((section) => (
+              <section key={section.title}>
+                <h3 className="text-base font-semibold text-slate-950">{section.title}</h3>
+                <div className="mt-2 grid gap-2 text-sm leading-6 text-slate-600">
+                  {section.paragraphs.map((paragraph) => (
+                    <p key={paragraph}>{paragraph}</p>
+                  ))}
+                </div>
+              </section>
+            ))}
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
