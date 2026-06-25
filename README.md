@@ -26,4 +26,4 @@ pnpm dev
 pnpm build
 ```
 
-El proyecto esta configurado con `base: "/ArbitrAR/"` para GitHub Pages.
+El proyecto usa assets relativos en build para funcionar en GitHub Pages sin depender del nombre exacto del repositorio.
